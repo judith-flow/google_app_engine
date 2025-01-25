@@ -13,7 +13,7 @@ manual_scaling:
 #[START env]
 env_variables:
     HOST_PORT: 3306
-    HOST_DB_NAME: 'magicplan_cloud'
+    HOST_DB_NAME: 'muster_cloud'
     HOST_TIMEOUT: 300
 
     #CLOUD KPI
@@ -70,10 +70,10 @@ env_variables:
 
 
     
-    GS_KPI_PRICELISTS_BUCKET: 'kpi_pricelists_magicplan'
-    GS_KPI_ACCOUNTS_BUCKET: 'kpi_accounts_magicplan'
-    GS_KPI_TEAMS_BUCKET: 'kpi_teams_magicplan'
-    GS_KPI_FORMS_BUCKET: 'kpi_forms_magicplan'
+    GS_KPI_PRICELISTS_BUCKET: 'kpi_pricelists_muster'
+    GS_KPI_ACCOUNTS_BUCKET: 'kpi_accounts_muster'
+    GS_KPI_TEAMS_BUCKET: 'kpi_teams_muster'
+    GS_KPI_FORMS_BUCKET: 'kpi_forms_muster'
 
     GS_USERS_FUNNEL_BUCKET: 'users_funnel_csv'
 
