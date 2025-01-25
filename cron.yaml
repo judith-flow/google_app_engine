@@ -1,0 +1,208 @@
+cron:
+  ##cloud kpi dashboard
+  - description : get the latest pricelists data
+    url : /kpi_pricelists
+    schedule: every day 01:00
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  - description : get the latest accounts data
+    url : /kpi_accounts
+    schedule: every day 01:30
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  - description : get the latest teams data
+    url : /kpi_teams
+    schedule: every day 02:30
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  - description : get the latest forms data
+    url : /kpi_forms
+    schedule: every day 03:30
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  ##Referrals 
+  - description : get the latest referrals data
+    url : /referrals
+    schedule: every day 05:00
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  - description : get the latest industries data
+    url : /industries
+    schedule: every day 05:00
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1    
+  - description : get the latest devices data
+    url : /devices
+    schedule: every day 05:00
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  #- description : get the latest payments for referrals
+  #  url : /payments_r
+  #  schedule: every day 05:00#
+  #  timezone: UTC
+  #  target:  kpi-mysql-batch-import
+  #  retry_parameters:
+  #    min_backoff_seconds: 3600
+  #    max_backoff_seconds: 7200
+  #    job_retry_limit: 1
+  #conversion_funnel_users_data
+  - description : get the latest registered users for conversion funnel
+    url : /conversion_funnel
+    schedule: every day 05:30
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  #revenue_dashboard_data
+  - description : get the latest workgroups data for revenue dashboard
+    url : /workgroups
+    schedule: every day 04:00
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  - description : get the latest payments data for revenue dashboard
+    url : /payments
+    schedule: every day 04:00
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  - description : get the latest billings data for revenue dashboard
+    url : /billings
+    schedule: every day 04:00
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  - description : get the latest subscriptions data for revenue dashboard
+    url : /subscriptions_revenue
+    schedule: every day 04:00
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  # below is from customlytics
+  - description : get the latest subscriptions data
+    url : /subscriptions
+    schedule: every day 02:00
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  - description : get the latest users data
+    url : /users
+    schedule: every day 03:00
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  #ANDROID REPORT
+  - description : overwrite the current month playstore csv file
+    url : /ingest
+    schedule: every day 13:00
+    timezone: UTC
+    target:  play-store-data
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  #IOS REPORT
+  - description : get the latest sales summery from app store
+    url : /ingest
+    schedule: every day 13:00
+    timezone: UTC
+    target:  app-store-itunes
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  #GA
+  - description : get the latest session-stat from google analytic
+    url : /ingest
+    schedule: every day 13:00
+    timezone: UTC
+    target:  ga-export
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  
+  
+  
+  
+  
+  #SUBSCRIPTIONS_UPDATED
+  - description : get the on-demand all useful info from subscriptions
+    url : /subscriptions_updated
+    schedule: every day 02:30
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  
+  #USERS_WORKGROUPS
+  - description : get new modified data from users_workgroups
+    url : /users_workgroups
+    schedule: every day 04:30
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  
+  - description : get the remove logs of users_workgroups table from api_log
+    url : /api_log_remove
+    schedule: every day 04:30
+    timezone: UTC
+    target:  kpi-mysql-batch-import
+    retry_parameters:
+      min_backoff_seconds: 3600
+      max_backoff_seconds: 7200
+      job_retry_limit: 1
+  

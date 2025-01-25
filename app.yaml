@@ -1,0 +1,169 @@
+runtime: python
+env: flex
+# app will be timeout after 8h = 8 * 3600sec = 28800sec or graceful-timeout after 6h = 6*3600sec = 21600sec
+# the values for should be reevaluated if the time_range is changed
+entrypoint: gunicorn -b :$PORT batch_ingest:app --timeout 28800 --graceful-timeout 21600
+runtime_config:
+    python_version: 3.7
+service: kpi-mysql-batch-import 
+threadsafe: true
+manual_scaling:
+  instances: 1
+
+#[START env]
+env_variables:
+    HOST_PORT: 3306
+    HOST_DB_NAME: 'magicplan_cloud'
+    HOST_TIMEOUT: 300
+
+    #CLOUD KPI
+    ## CATALOGS TABLE
+    QUERY_KPI_PRICELISTS: SELECT id as pricelist_id, country, status, created FROM catalogs WHERE  status = "active" AND DATEDIFF(created,CURDATE())=-1; 
+    ## USERS TABLE
+    QUERY_KPI_ACCOUNTS: SELECT id as user_id, email, signup_origin, created FROM users WHERE signup_origin = "cloud" AND DATEDIFF(created,CURDATE())=-1;
+    ## WORKGROUPS TABLE
+    QUERY_KPI_TEAMS: SELECT id as workgroup_id, type, created FROM workgroups WHERE type = "team" AND DATEDIFF(created,CURDATE())=-1 ;
+    ## CUSTOM_FORMS TABLE
+    QUERY_KPI_FORMS: SELECT id as form_id, custom_form, created FROM custom_forms WHERE DATEDIFF(created,CURDATE())=-1;
+
+    ##CONVENTION FUNNEL
+    ## USERS TABLE 
+    QUERY_USERS_FUNNEL: SELECT id, sensopia_id as email, signup_origin, sign_up_date,country,marketing_use_case,marketing_intent FROM users WHERE DATEDIFF(sign_up_date, CURDATE())=-1;
+
+    ##REFERRALS
+    ## REFERRALS TABLE
+    QUERY_REFERRALS: SELECT foreign_key AS user_id, created, referral_code FROM referrals WHERE DATEDIFF(created, CURDATE())=-1 AND action="sign_up";
+    ## INDUSTRIES TABLE
+    QUERY_INDUSTRIES: SELECT iu.user_id, i.name AS industry_name, iu.created FROM industries_users iu LEFT JOIN industries i ON iu.industry_id=i.id WHERE DATEDIFF(iu.created, CURDATE())=-1;
+    ## DEVICES TABLE
+    QUERY_DEVICES: SELECT du.user_id, d.id AS device_id, email, os, d.created FROM devices d LEFT JOIN devices_users du ON d.id=du.device_id WHERE DATEDIFF(d.created, CURDATE())=-1;
+    ## PAYMENTS TABLE
+    #QUERY_PAYMENTS_R: SELECT user_id, item_number AS product, amount, currency, date AS payment_date FROM payments WHERE DATEDIFF(created, CURDATE())=-1 AND (payment_status = "completed" OR payment_status="refunded");
+
+    ##REVENUE
+    ## PAYMENTS TABLE
+    QUERY_PAYMENTS: SELECT date, billing_id,workgroup_id, subscription_id, sensopia_id, user_id, email, amount, fee, currency, payment_status, item_number, item_name, creator, created, start_date, end_date FROM payments WHERE DATEDIFF(created, CURDATE())=-1;
+    ## WORKGROUPS TABLE
+    QUERY_WORKGROUPS: SELECT id AS workgroup_id, admin, owner, type, created, modified, parent_id, sensopia_id,admin_id,owner_id FROM workgroups WHERE DATEDIFF(modified, CURDATE())=-1;
+    ## BILLINGS TABLE
+    QUERY_BILLINGS: SELECT id AS billing_id, sensopia_id, workgroup_id, user_id, creator, billing_cycle, creation_date, expiration_date, CURDATE() AS snapshot_date FROM billings WHERE status="active";
+    ## SUBSCRIPTIONS TABLE
+    QUERY_SUBSCRIPTIONS_REVENUE: SELECT id AS subscription_id, email, sensopia_id, billing_id, workgroup_id, created, modified FROM subscriptions WHERE DATEDIFF(modified, CURDATE())=-1;
+    
+    ##INITIAL BY CUSTOMLYTICS
+    ## SUBSCRIPTIONS TABLE
+    QUERY_SUBSCRIPTIONS: SELECT user_id, sensopia_id, assigned_to, email, product, policy, max_device, creator, creation_date, expiration_date, created, modified, CURDATE() AS snapshot_date FROM subscriptions WHERE policy = 'on-demand';
+    ## USERS TABLE
+    QUERY_USERS: SELECT id as user_id, sensopia_id AS email, country, last_active_at, created, modified, CURDATE() AS snapshot_date FROM users WHERE DATEDIFF(modified, CURDATE())=-1;
+    ## USER_STATS TABLE
+    #user_stats is not updated anymore
+    #QUERY_USERSTATS: SELECT user_id, device_os, industry, created, modified, CURDATE() AS snapshot_date FROM user_stats WHERE DATEDIFF(modified, CURDATE())=-1;
+
+
+    ##CONSOLIDATE SUBSCRIPTIONS
+    QUERY_SUBSCRIPTIONS_UPDATED: SELECT id AS subscription_id, user_id, sensopia_id, assigned_to,  email, billing_id, workgroup_id, product, policy, max_device, creator, creation_date, expiration_date, created, modified, CURDATE() AS snapshot_date FROM subscriptions WHERE policy = 'on-demand';
+
+
+    ##USERS_WORKGROUPS RELATIONSHIPS:
+    QUERY_USERS_WORKGROUPS: SELECT workgroup_id, user_id, created, modified FROM users_workgroups WHERE DATEDIFF(modified, CURDATE())=-1;
+    QUERY_API_LOG_REMOVE: SELECT id, request, response_code,response, created FROM api_log WHERE (service like "%api/WorkgroupUsers/remove") AND (DATEDIFF(created, CURDATE())=-1);
+
+
+    
+    GS_KPI_PRICELISTS_BUCKET: 'kpi_pricelists_magicplan'
+    GS_KPI_ACCOUNTS_BUCKET: 'kpi_accounts_magicplan'
+    GS_KPI_TEAMS_BUCKET: 'kpi_teams_magicplan'
+    GS_KPI_FORMS_BUCKET: 'kpi_forms_magicplan'
+
+    GS_USERS_FUNNEL_BUCKET: 'users_funnel_csv'
+
+    GS_REFERRALS_BUCKET: 'referrals_status_csv'
+    GS_INDUSTRIES_BUCKET: 'industries_csv'
+    GS_DEVICES_BUCKET: 'devices_csv'
+    #GS_PAYMENTS_R_BUCKET: 'payments_referrals_csv'
+
+    GS_WORKGROUPS_BUCKET: 'workgroups_csv'
+    GS_PAYMENTS_BUCKET: 'payments_csv'
+    GS_BILLINGS_BUCKET: 'billings_status_csv'
+    GS_SUBSCRIPTIONS_REVENUE_BUCKET: 'subscriptions_revenue_csv'
+
+    GS_SUBSCRIPTIONS_BUCKET: 'user_subscription_status'
+    #GS_STATS_BUCKET: 'userstats_daily_csv'
+    GS_USERS_BUCKET: 'users_daily_csv'
+
+
+    GS_SUBSCRIPTIONS_UPDATED_BUCKET: 'subscriptions_updated_csv'
+
+    GS_USERS_WORKGROUPS_BUCKET: 'users_workgroups_csv'
+    GS_API_LOG_REMOVE_BUCKET: 'users_workgroups_csv'
+#[END env]
+
+
+#[END env]
+
+handlers:
+#CLOUD KPI
+- url: /kpi_pricelists
+  script: kpi_batch_ingest.app
+
+- url: /kpi_accounts
+  script: kpi_batch_ingest.app
+
+- url: /kpi_teams
+  script: kpi_batch_ingest.app
+
+- url: /kpi_forms
+  script: kpi_batch_ingest.app
+#CONVERSION FUNNEL
+- url: /conversion_funnel
+  script: kpi_batch_ingest.app
+#REFERRALS
+- url: /referrals
+  script: kpi_batch_ingest.app
+
+- url: /industries
+  script: kpi_batch_ingest.app
+
+- url: /devices
+  script: kpi_batch_ingest.app
+
+#- url: /payments_r
+#  script: kpi_batch_ingest.app
+
+#REVENUE
+- url: /payments
+  script: kpi_batch_ingest.app
+
+- url: /workgroups
+  script: kpi_batch_ingest.app
+
+- url: /billings
+  script: kpi_batch_ingest.app
+
+- url: /subscriptions_revenue
+  script: kpi_batch_ingest.app
+#INITIAL BY CUSTOMLYTICS
+- url: /subscriptions
+  script: kpi_batch_ingest.app
+
+- url: /users
+  script: kpi_batch_ingest.app
+
+#- url: /user_stats
+#  script: kpi_batch_ingest.app
+
+
+#SUBSCRIPTIONS UPDATED
+
+- url: /subscriptions_updated
+  script: kpi_batch_ingest.app
+
+#USERS_WORKGROUPS
+
+- url: /users_workgroups
+  script: kpi_batch_ingest.app
+
+
+- url: /api_log_remove
+  script: kpi_batch_ingest.app
+
