@@ -9,10 +9,10 @@ generate csv files of the data retrieved through queries and upload into cloud s
 ## cron.yaml
 define the schedule of the cron jobs 
 
-# requirements.txt
+## requirements.txt
 define package dependencies. 
 watch out the depreciation. 
 if no version is definied, then the latest version will be called. 
 
-# deploy_steps_powershell.ps1
+## deploy_steps_powershell.ps1
 steps and codes for deploying in powershell. 
